@@ -143,7 +143,21 @@ const App: React.FC = () => {
         1. Buat array "lkpd" sesuai jumlah pertemuan (${formData.jumlahPertemuan}). Setiap item harus disesuaikan dengan model dan metode pertemuan masing-masing.
         2. Integrasikan secara eksplisit nilai-nilai dari Dimensi Profil Lulusan (${(formData.dimensiProfil || []).join(', ')}) dan Topik Panca Cinta (${(formData.topikPancaCinta || []).join(', ')}) ke dalam setiap langkah "pengalamanBelajar" (Memahami, Mengaplikasi, Refleksi) agar pembelajaran lebih berkarakter, bermakna, dan sesuai dengan identitas madrasah.
         3. Untuk bagian "asesmenAwal", "asesmenProses", dan "asesmenAkhir", berikan DESKRIPSI UMUM SAJA (jangan terlalu detail) untuk ditampilkan di tabel utama RPP.
-        4. Untuk bagian "asesmenAwalKonten", "asesmenProsesKonten", dan "asesmenAkhirKonten", berikan KONTEN LENGKAP DAN DETAIL (khusus asesmenAkhirKonten: 20 PG, 10 Isian, 5 Uraian + Kunci) untuk ditampilkan di bagian Lampiran.
+        4. Untuk bagian "asesmenAwalKonten", "asesmenProsesKonten", dan "asesmenAkhirKonten", berikan KONTEN LENGKAP DAN DETAIL (khusus asesmenAkhirKonten: 20 PG, 10 Isian, 5 Uraian + Kunci) untuk ditampilkan di bagian Lampiran. 
+        PENTING: Gunakan judul bagian berikut untuk Asesmen Akhir:
+        - "I. Pilihlah salah satu jawaban yang paling benar dengan memberi tanda silang !" (untuk Pilihan Ganda)
+        - "II. Isilah titik - titik dibawah ini dengan jawaban yang benar !" (untuk Isian)
+        - "III. Jawablah pertanyaan dibawah ini dengan benar !" (untuk Uraian)
+        
+        FORMAT KHUSUS ASESMEN AKHIR:
+        - Opsi pilihan ganda (a, b, c, d) WAJIB diletakkan di bawah teks soal.
+        - Setiap opsi (a, b, c, d) WAJIB berada di baris baru masing-masing (vertikal ke bawah, bukan menyamping).
+        - WAJIB menggunakan HURUF KECIL (a., b., c., d.).
+        - Kunci Jawaban WAJIB dibuat terpisah di bagian paling bawah dengan urutan: 
+          1. Kunci Jawaban Pilihan Ganda (List nomor 1-20 ke bawah)
+          2. Kunci Jawaban Isian (List nomor 1-10 ke bawah)
+          3. Kunci Jawaban Uraian (List nomor 1-5 ke bawah)
+        
         5. WAJIB: Bagian "isi" pada "lkpd" harus berisi MATERI YANG SANGAT LENGKAP DAN MENDALAM (minimal 1000 kata per pertemuan). Gunakan sub-heading, poin-poin, dan penjelasan yang komprehensif agar guru memiliki bahan ajar yang utuh.
         6. WAJIB: Setiap rubrik penilaian HARUS disajikan dalam bentuk TABEL MARKDOWN dengan garis pembatas yang jelas.
         7. Gunakan format Markdown (seperti tabel, list, bold) di dalam string JSON untuk mempercantik tampilan konten. Pastikan tabel menggunakan format Markdown standar agar dapat dibaca dengan baik.
@@ -536,6 +550,35 @@ const App: React.FC = () => {
                     <div className="p-4 border border-slate-200 bg-slate-50 text-justify text-sm rounded-lg mt-2">
                       <div className="markdown-body">
                         <Markdown remarkPlugins={[remarkGfm]}>{generated.asesmenProsesKonten}</Markdown>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <p className="font-bold mb-2">Lembar Observasi Aktivitas Murid (28 Siswa):</p>
+                        <table className="w-full border-collapse border border-slate-400">
+                          <thead>
+                            <tr className="bg-slate-100">
+                              <th className="border border-slate-400 p-1 w-[8%] text-center text-[9pt]">No</th>
+                              <th className="border border-slate-400 p-1 w-[42%] text-center text-[9pt]">Nama Murid</th>
+                              <th className="border border-slate-400 p-1 w-[10%] text-center text-[9pt]">K1</th>
+                              <th className="border border-slate-400 p-1 w-[10%] text-center text-[9pt]">K2</th>
+                              <th className="border border-slate-400 p-1 w-[10%] text-center text-[9pt]">K3</th>
+                              <th className="border border-slate-400 p-1 w-[20%] text-center text-[9pt]">Catatan</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Array.from({ length: 28 }, (_, i) => (
+                              <tr key={i}>
+                                <td className="border border-slate-400 p-1 text-center text-[9pt]">{i + 1}</td>
+                                <td className="border border-slate-400 p-1 h-5"></td>
+                                <td className="border border-slate-400 p-1 h-5"></td>
+                                <td className="border border-slate-400 p-1 h-5"></td>
+                                <td className="border border-slate-400 p-1 h-5"></td>
+                                <td className="border border-slate-400 p-1 h-5"></td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        <p className="text-[8pt] mt-1 italic">*K1-K3: Kriteria Penilaian (sesuaikan dengan rubrik di atas)</p>
                       </div>
                     </div>
                   </div>
