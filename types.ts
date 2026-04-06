@@ -41,6 +41,9 @@ export interface GeneratedContent {
   asesmenAwal: string;
   asesmenProses: string;
   asesmenAkhir: string;
+  asesmenAwalKonten: string;
+  asesmenProsesKonten: string;
+  asesmenAkhirKonten: string;
   lkpd: {
     pertemuan: number;
     isi: string;

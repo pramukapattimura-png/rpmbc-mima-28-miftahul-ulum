@@ -1,8 +1,10 @@
 
 import React, { useState } from 'react';
 import { RPPData, GeneratedContent } from './types';
-import { MODEL_PEMBELAJARAN, METODE_PEMBELAJARAN, DIMENSI_PROFIL, PANCA_CINTA } from './constants';
+import { MODEL_PEMBELAJARAN, METODE_PEMBELAJARAN, DIMENSI_PROFIL, PANCA_CINTA, MATA_PELAJARAN } from './constants';
 import { GoogleGenAI } from "@google/genai";
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Search, Loader2, Download, ChevronRight, ChevronLeft, CheckCircle2, FileText } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -18,7 +20,7 @@ const App: React.FC = () => {
     nipKepala: '',
     fase: 'A',
     kelas: '1',
-    mapel: '',
+    mapel: MATA_PELAJARAN[0],
     tahunPelajaran: '2025/2026',
     semester: 'Ganjil',
     kesiapanMurid: '',
@@ -124,19 +126,28 @@ const App: React.FC = () => {
               "refleksi": ["langkah 1", "langkah 2", "langkah 3", "langkah 4", "langkah 5"]
             }
           ],
-          "asesmenAwal": "deskripsi instrumen tes tulis/rubrik lengkap",
-          "asesmenProses": "deskripsi observasi/rubrik/LKPD lengkap",
-          "asesmenAkhir": "deskripsi tes tulis/produk/portofolio lengkap",
+          "asesmenAwal": "deskripsi singkat instrumen (misal: tes tulis pilihan ganda)",
+          "asesmenProses": "deskripsi singkat instrumen (misal: observasi/LKPD)",
+          "asesmenAkhir": "deskripsi singkat instrumen (misal: tes tulis/produk)",
+          "asesmenAwalKonten": "konten lengkap instrumen asesmen awal (soal/rubrik/checklist) yang siap pakai",
+          "asesmenProsesKonten": "konten lengkap instrumen asesmen proses (observasi/rubrik/LKPD) yang siap pakai",
+          "asesmenAkhirKonten": "konten lengkap instrumen asesmen akhir (20 soal PG, 10 isian, 5 uraian + kunci jawaban) yang siap pakai",
           "lkpd": [
             {
               "pertemuan": 1,
-              "isi": "Konten Lembar Kerja Peserta Didik (LKPD) lengkap dengan instruksi tugas dan Rubrik Penilaian. Sesuaikan konten dengan TP: ${formData.tp}, Model Pembelajaran: ${formData.pertemuanDetails[0]?.model}, dan Metode: ${formData.pertemuanDetails[0]?.methods.join(', ')}"
+              "isi": "Konten Lembar Kerja Peserta Didik (LKPD) yang SANGAT LENGKAP. WAJIB mencakup: 1. MATERI PEMBELAJARAN MENDALAM (Minimal 1000 kata, terstruktur dengan sub-bab, penjelasan detail, contoh konkret, dan ilustrasi kontekstual), 2. Instruksi tugas/aktivitas siswa yang menantang, 3. Rubrik Penilaian yang jelas. Sesuaikan konten dengan TP: ${formData.tp}, Model Pembelajaran: ${formData.pertemuanDetails[0]?.model}, dan Metode: ${formData.pertemuanDetails[0]?.methods.join(', ')}"
             }
           ]
         }
         PENTING: 
         1. Buat array "lkpd" sesuai jumlah pertemuan (${formData.jumlahPertemuan}). Setiap item harus disesuaikan dengan model dan metode pertemuan masing-masing.
         2. Integrasikan secara eksplisit nilai-nilai dari Dimensi Profil Lulusan (${(formData.dimensiProfil || []).join(', ')}) dan Topik Panca Cinta (${(formData.topikPancaCinta || []).join(', ')}) ke dalam setiap langkah "pengalamanBelajar" (Memahami, Mengaplikasi, Refleksi) agar pembelajaran lebih berkarakter, bermakna, dan sesuai dengan identitas madrasah.
+        3. Untuk bagian "asesmenAwal", "asesmenProses", dan "asesmenAkhir", berikan DESKRIPSI UMUM SAJA (jangan terlalu detail) untuk ditampilkan di tabel utama RPP.
+        4. Untuk bagian "asesmenAwalKonten", "asesmenProsesKonten", dan "asesmenAkhirKonten", berikan KONTEN LENGKAP DAN DETAIL (khusus asesmenAkhirKonten: 20 PG, 10 Isian, 5 Uraian + Kunci) untuk ditampilkan di bagian Lampiran.
+        5. WAJIB: Bagian "isi" pada "lkpd" harus berisi MATERI YANG SANGAT LENGKAP DAN MENDALAM (minimal 1000 kata per pertemuan). Gunakan sub-heading, poin-poin, dan penjelasan yang komprehensif agar guru memiliki bahan ajar yang utuh.
+        6. WAJIB: Setiap rubrik penilaian HARUS disajikan dalam bentuk TABEL MARKDOWN dengan garis pembatas yang jelas.
+        7. Gunakan format Markdown (seperti tabel, list, bold) di dalam string JSON untuk mempercantik tampilan konten. Pastikan tabel menggunakan format Markdown standar agar dapat dibaca dengan baik.
+        8. Pastikan seluruh konten ditulis dengan lengkap tanpa terpotong (no truncation).
         Bahasa Indonesia formal, terstruktur, bermakna dan menggembirakan.
       `;
 
@@ -165,6 +176,9 @@ const App: React.FC = () => {
         asesmenAwal: result.asesmenAwal || '',
         asesmenProses: result.asesmenProses || '',
         asesmenAkhir: result.asesmenAkhir || '',
+        asesmenAwalKonten: result.asesmenAwalKonten || '',
+        asesmenProsesKonten: result.asesmenProsesKonten || '',
+        asesmenAkhirKonten: result.asesmenAkhirKonten || '',
         lkpd: Array.isArray(result.lkpd) ? result.lkpd.map((l: any) => ({
           pertemuan: l.pertemuan || 1,
           isi: l.isi || ''
@@ -214,6 +228,10 @@ const App: React.FC = () => {
         .spacer { height: 1.5cm; }
         .signature-table td { border: none !important; padding: 5px 0; }
         ol, ul { margin-top: 1px; margin-bottom: 2px; padding-left: 18px; }
+        .markdown-body ul { list-style-type: disc; margin-left: 20px; }
+        .markdown-body ol { list-style-type: decimal; margin-left: 20px; }
+        .markdown-body table { border-collapse: collapse; width: 100%; margin-bottom: 10px; }
+        .markdown-body th, .markdown-body td { border: 1px solid #000; padding: 3px 5px; }
       </style>
     `;
 
@@ -295,7 +313,7 @@ const App: React.FC = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-2">
                     <div className="md:col-span-1">
-                      <Input label="Mata Pelajaran" name="mapel" value={formData.mapel} onChange={handleInputChange} placeholder="Contoh: Matematika" />
+                      <Select label="Mata Pelajaran" name="mapel" value={formData.mapel} onChange={handleInputChange} options={MATA_PELAJARAN} />
                     </div>
                     <Select label="Fase" name="fase" value={formData.fase} onChange={handleInputChange} options={['A', 'B', 'C']} />
                     <Select label="Kelas" name="kelas" value={formData.kelas} onChange={handleInputChange} options={['1', '2', '3', '4', '5', '6']} />
@@ -502,47 +520,44 @@ const App: React.FC = () => {
                   <div className="page-break"></div>
                   <div className="text-center mt-6">
                     <h3 className="text-xl font-bold uppercase underline">LAMPIRAN - LAMPIRAN</h3>
-                    <p className="text-slate-500 text-gray italic text-sm mt-1">copy prompt dibawah paste di gemini canvas kemudian paste lagi disini</p>
                   </div>
 
                   <div className="mt-6">
                     <h4 className="font-bold uppercase">LAMPIRAN 1 : ASESSMEN AWAL</h4>
-                    <p>buatkan assesmen awal dan rubrik dari tujuan pembelajaran</p>
-                    <p className="font-semibold italic mt-1">Tujuan Pembelajaran:</p>
-                    <p className="p-1 border border-slate-200 bg-slate-50 italic">{formData.tp}</p>
-                    <p className="mt-1 font-semibold">dengan deskripsi:</p>
-                    <div className="p-1 border border-slate-200 text-justify text-sm">{generated.asesmenAwal}</div>
+                    <div className="p-4 border border-slate-200 bg-slate-50 text-justify text-sm rounded-lg mt-2">
+                      <div className="markdown-body">
+                        <Markdown remarkPlugins={[remarkGfm]}>{generated.asesmenAwalKonten}</Markdown>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="mt-6">
                     <h4 className="font-bold uppercase">LAMPIRAN 2 : ASESSMEN PROSES</h4>
-                    <p>buatkan assesmen proses dan rubrik dari tujuan pembelajaran</p>
-                    <p className="font-semibold italic mt-1">Tujuan Pembelajaran:</p>
-                    <p className="p-1 border border-slate-200 bg-slate-50 italic">{formData.tp}</p>
-                    <p className="mt-1 font-semibold">dengan deskripsi:</p>
-                    <div className="p-1 border border-slate-200 text-justify text-sm">{generated.asesmenProses}</div>
+                    <div className="p-4 border border-slate-200 bg-slate-50 text-justify text-sm rounded-lg mt-2">
+                      <div className="markdown-body">
+                        <Markdown remarkPlugins={[remarkGfm]}>{generated.asesmenProsesKonten}</Markdown>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="mt-6">
                     <h4 className="font-bold uppercase">LAMPIRAN 3 : ASESSMEN AKHIR</h4>
-                    <p>buatkan assesmen akhir dan rubrik dari tujuan pembelajaran</p>
-                    <p className="font-semibold italic mt-1">Tujuan Pembelajaran:</p>
-                    <p className="p-1 border border-slate-200 bg-slate-50 italic">{formData.tp}</p>
-                    <p className="mt-1 font-semibold">dengan deskripsi:</p>
-                    <div className="p-1 border border-slate-200 text-justify text-sm">{generated.asesmenAkhir}</div>
+                    <div className="p-4 border border-slate-200 bg-slate-50 text-justify text-sm rounded-lg mt-2">
+                      <div className="markdown-body">
+                        <Markdown remarkPlugins={[remarkGfm]}>{generated.asesmenAkhirKonten}</Markdown>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="mt-6">
                     <h4 className="font-bold uppercase">LAMPIRAN 4 : LKPD DAN RUBRIK</h4>
-                    <p>buatkan assesmen lkpd dan rubrik dari tujuan pembelajaran</p>
-                    <p className="font-semibold italic mt-1">Tujuan Pembelajaran:</p>
-                    <p className="p-1 border border-slate-200 bg-slate-50 italic">{formData.tp}</p>
-                    
                     {generated.lkpd.map((item, idx) => (
-                      <div key={idx} className="mt-4 border-l-4 border-green-800 pl-4 bg-slate-50 p-2">
-                        <h5 className="font-bold text-green-900 border-b mb-1 pb-1">LKPD Pertemuan Ke-{item.pertemuan}</h5>
-                        <p className="text-[10pt] mb-1 italic text-slate-600">Disesuaikan dengan Model: {formData.pertemuanDetails[idx]?.model || '-'} & Metode: {(formData.pertemuanDetails[idx]?.methods || []).join(', ')}</p>
-                        <div className="text-justify text-sm whitespace-pre-wrap">{item.isi}</div>
+                      <div key={idx} className="mt-4 border-l-4 border-green-800 pl-4 bg-slate-50 p-4 rounded-r-lg shadow-sm">
+                        <h5 className="font-bold text-green-900 border-b mb-2 pb-1">LKPD Pertemuan Ke-{item.pertemuan}</h5>
+                        <p className="text-[10pt] mb-2 italic text-slate-600">Disesuaikan dengan Model: {formData.pertemuanDetails[idx]?.model || '-'} & Metode: {(formData.pertemuanDetails[idx]?.methods || []).join(', ')}</p>
+                        <div className="markdown-body text-sm">
+                          <Markdown remarkPlugins={[remarkGfm]}>{item.isi}</Markdown>
+                        </div>
                       </div>
                     ))}
                   </div>

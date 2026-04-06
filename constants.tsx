@@ -44,3 +44,20 @@ export const PANCA_CINTA = [
   'Cinta Lingkungan',
   'Cinta Tanah Air'
 ];
+
+export const MATA_PELAJARAN = [
+  'Al-Qur\'an Hadis',
+  'Akidah Akhlak',
+  'Fikih',
+  'Sejarah Kebudayaan Islam (SKI)',
+  'Bahasa Arab',
+  'Pendidikan Pancasila',
+  'Bahasa Indonesia',
+  'Matematika',
+  'Ilmu Pengetahuan Alam dan Sosial (IPAS)',
+  'Seni Budaya',
+  'Pendidikan Jasmani, Olahraga, dan Kesehatan (PJOK)',
+  'Bahasa Inggris',
+  'Bahasa Jawa',
+  'Ke-NU-an / Aswaja'
+];
