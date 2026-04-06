@@ -150,9 +150,7 @@ const App: React.FC = () => {
         - "III. Jawablah pertanyaan dibawah ini dengan benar !" (untuk Uraian)
         
         FORMAT KHUSUS ASESMEN AKHIR:
-        - Opsi pilihan ganda (a, b, c, d) WAJIB diletakkan di bawah teks soal.
-        - Setiap opsi (a, b, c, d) WAJIB berada di baris baru masing-masing (vertikal ke bawah, bukan menyamping).
-        - WAJIB menggunakan HURUF KECIL (a., b., c., d.).
+        - Opsi pilihan ganda (A, B, C, D) WAJIB diletakkan di baris baru (line break) di bawah teks soal. Tidak boleh menyambung di baris yang sama dengan soal.
         - Kunci Jawaban WAJIB dibuat terpisah di bagian paling bawah dengan urutan: 
           1. Kunci Jawaban Pilihan Ganda (List nomor 1-20 ke bawah)
           2. Kunci Jawaban Isian (List nomor 1-10 ke bawah)
@@ -173,7 +171,18 @@ const App: React.FC = () => {
         }
       });
 
-      const result = JSON.parse(response.text || '{}');
+      const text = response.text || '{}';
+      
+      // Robust JSON extraction: find the first '{' and last '}'
+      const startIdx = text.indexOf('{');
+      const endIdx = text.lastIndexOf('}');
+      
+      let cleanJson = text;
+      if (startIdx !== -1 && endIdx !== -1) {
+        cleanJson = text.substring(startIdx, endIdx + 1);
+      }
+
+      const result = JSON.parse(cleanJson);
       
       const safeResult: GeneratedContent = {
         integrasiKBC: result.integrasiKBC || '',
@@ -553,7 +562,7 @@ const App: React.FC = () => {
                       </div>
                       
                       <div className="mt-4">
-                        <p className="font-bold mb-2">Lembar Observasi Aktivitas Murid (28 Siswa):</p>
+                        <p className="font-bold mb-2">Lembar Observasi Aktivitas Murid:</p>
                         <table className="w-full border-collapse border border-slate-400">
                           <thead>
                             <tr className="bg-slate-100">
@@ -566,7 +575,7 @@ const App: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {Array.from({ length: 28 }, (_, i) => (
+                            {Array.from({ length: 10 }, (_, i) => (
                               <tr key={i}>
                                 <td className="border border-slate-400 p-1 text-center text-[9pt]">{i + 1}</td>
                                 <td className="border border-slate-400 p-1 h-5"></td>
